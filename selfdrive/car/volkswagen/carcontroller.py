@@ -1,8 +1,16 @@
+#
+# Copyright (c) 2020-2022 bluetulippon@gmail.com Chad_Peng(Pon).
+# All Rights Reserved.
+# Confidential and Proprietary - bluetulippon@gmail.com Chad_Peng(Pon).
+#
+
+import cereal.messaging as messaging
 from cereal import car
 from selfdrive.car import apply_std_steer_torque_limits
 from selfdrive.car.volkswagen import volkswagencan
 from selfdrive.car.volkswagen.values import DBC_FILES, CANBUS, MQB_LDW_MESSAGES, BUTTON_STATES, CarControllerParams as P
 from opendbc.can.packer import CANPacker
+from common.params import Params, put_nonblocking
 
 VisualAlert = car.CarControl.HUDControl.VisualAlert
 
@@ -22,7 +30,10 @@ class CarController():
 
     self.steer_rate_limited = False
 
-  def update(self, c, CS, frame, ext_bus, actuators, visual_alert, left_lane_visible, right_lane_visible, left_lane_depart, right_lane_depart):
+    self.sm = messaging.SubMaster(['vagParam'])
+
+  #Pon Fulltime LKA
+  def update(self, c, availableFulltimeLka, CS, frame, ext_bus, actuators, visual_alert, left_lane_visible, right_lane_visible, left_lane_depart, right_lane_depart):
     """ Controls thread """
 
     can_sends = []
@@ -40,7 +51,22 @@ class CarController():
       # torque value. Do that anytime we happen to have 0 torque, or failing that,
       # when exceeding ~1/3 the 360 second timer.
 
-      if c.latActive:
+      #Pon Fulltime LKA
+      isVagParamFromCerealEnabled = self.sm['vagParam'].isVagParamFromCerealEnabled
+
+      if isVagParamFromCerealEnabled:
+        isVagFlkaLogEnabled = self.sm['vagParam'].isVagFlkaLogEnabled
+      else :
+        params = Params()
+        try:
+          isVagFlkaLogEnabled = params.get_bool("IsVagFlkaLogEnabled")
+        except:
+          print("[BOP][carcontroller.py][update()][IsVagFlkaLogEnabled] Get param exception")
+          isVagFlkaLogEnabled = False
+      if isVagFlkaLogEnabled:
+        print("[BOP][carcontroller.py][update()][FLKA] availableFulltimeLka=", availableFulltimeLka)
+
+      if (c.latActive or availableFulltimeLka):
         new_steer = int(round(actuators.steer * P.STEER_MAX))
         apply_steer = apply_std_steer_torque_limits(new_steer, self.apply_steer_last, CS.out.steeringTorque, P)
         self.steer_rate_limited = new_steer != apply_steer
@@ -67,18 +93,98 @@ class CarController():
 
       self.apply_steer_last = apply_steer
       idx = (frame / P.HCA_STEP) % 16
+
+      #Pon Blindspot info/warning vibrator
+      vibrator_threshold = 0.0
+
+      # ----- IsVagBlindspotEnabled -----
+      if isVagParamFromCerealEnabled:
+        isVagBlindspotEnabled = self.sm['vagParam'].isVagBlindspotEnabled
+      else :
+        params = Params()
+        try:
+          isVagBlindspotEnabled = params.get_bool("IsVagBlindspotEnabled")
+        except:
+          print("[BOP][carcontroller.py][update()][IsVagBlindspotEnabled] Get param exception")
+          isVagLeadCarEnabled = False
+
+      # ----- IsVagBlindspotInfoVibratorEnabled -----
+      if isVagParamFromCerealEnabled:
+        isVagBlindspotInfoVibratorEnabled = self.sm['vagParam'].isVagBlindspotInfoVibratorEnabled
+      else :
+        params = Params()
+        try:
+          isVagBlindspotInfoVibratorEnabled = params.get_bool("IsVagBlindspotInfoVibratorEnabled")
+        except:
+          print("[BOP][carcontroller.py][update()][IsVagBlindspotInfoVibratorEnabled] Get param exception")
+          isVagLeadCarEnabled = False
+
+      # ----- IsVagBlindspotWarningVibratorEnabled -----
+      if isVagParamFromCerealEnabled:
+        isVagBlindspotWarningVibratorEnabled = self.sm['vagParam'].isVagBlindspotWarningVibratorEnabled
+      else :
+        params = Params()
+        try:
+          isVagBlindspotWarningVibratorEnabled = params.get_bool("IsVagBlindspotWarningVibratorEnabled")
+        except:
+          print("[BOP][carcontroller.py][update()][IsVagBlindspotWarningVibratorEnabled] Get param exception")
+          isVagLeadCarEnabled = False
+
+      # ----- IsVagBlindspotVibratorWithFlka -----
+      if isVagParamFromCerealEnabled:
+        isVagBlindspotVibratorWithFlka = self.sm['vagParam'].isVagBlindspotVibratorWithFlka
+      else :
+        params = Params()
+        try:
+          isVagBlindspotVibratorWithFlka = params.get_bool("IsVagBlindspotVibratorWithFlka")
+        except:
+          print("[BOP][carcontroller.py][update()][IsVagBlindspotVibratorWithFlka] Get param exception")
+          isVagLeadCarEnabled = False
+
+      vibratorEnabled = 0
+      accAvailable = CS.out.cruiseState.available
+      accEnabled = CS.out.cruiseState.enabled
+      leftBlindspot = CS.out.leftBlindspot
+      rightBlindspot = CS.out.rightBlindspot
+      leftBlindspotWarning = CS.out.leftBlindspotWarning
+      rightBlindspotWarning = CS.out.rightBlindspotWarning
+
+      if isVagBlindspotEnabled and isVagBlindspotInfoVibratorEnabled:
+        if (((not accAvailable and not accEnabled) or (accAvailable and isVagBlindspotVibratorWithFlka)) and (leftBlindspot or rightBlindspot)):
+          vibratorEnabled = 1
+
+      if isVagBlindspotEnabled and isVagBlindspotWarningVibratorEnabled:
+        if (((not accAvailable and not accEnabled) or (accAvailable and isVagBlindspotVibratorWithFlka)) and (leftBlindspotWarning or rightBlindspotWarning)):
+          vibratorEnabled = 2
+
       can_sends.append(volkswagencan.create_mqb_steering_control(self.packer_pt, CANBUS.pt, apply_steer,
-                                                                 idx, hcaEnabled))
+                                                                 idx, hcaEnabled, vibratorEnabled))
 
     # **** HUD Controls ***************************************************** #
 
     if frame % P.LDW_STEP == 0:
+     #Pon Fulltime LKA (add condition acc available trigger LKA)
+      hudEnabled = True if (c.enabled or availableFulltimeLka) and not CS.out.standstill else False
+      if isVagParamFromCerealEnabled:
+        isVagFlkaLogEnabled = self.sm['vagParam'].isVagFlkaLogEnabled
+      else :
+        params = Params()
+        try:
+          isVagFlkaLogEnabled = params.get_bool("IsVagFlkaLogEnabled")
+        except:
+          print("[BOP][carcontroller.py][update()][IsVagFlkaLogEnabled] Get param exception")
+          isVagFlkaLogEnabled = False
+
+      if isVagFlkaLogEnabled:
+        print("[BOP][carcontroller.py][update()][FLKA] hudEnabled=", hudEnabled)
+
       if visual_alert in (VisualAlert.steerRequired, VisualAlert.ldw):
         hud_alert = MQB_LDW_MESSAGES["laneAssistTakeOverSilent"]
       else:
         hud_alert = MQB_LDW_MESSAGES["none"]
 
-      can_sends.append(volkswagencan.create_mqb_hud_control(self.packer_pt, CANBUS.pt, c.enabled,
+      #Pon Fulltime LKA
+      can_sends.append(volkswagencan.create_mqb_hud_control(self.packer_pt, CANBUS.pt, hudEnabled,
                                                             CS.out.steeringPressed, hud_alert, left_lane_visible,
                                                             right_lane_visible, CS.ldw_stock_values,
                                                             left_lane_depart, right_lane_depart))

@@ -1,9 +1,16 @@
+#
+# Copyright (c) 2020-2022 bluetulippon@gmail.com Chad_Peng(Pon).
+# All Rights Reserved.
+# Confidential and Proprietary - bluetulippon@gmail.com Chad_Peng(Pon).
+#
+
 import math
+import cereal.messaging as messaging
 
 from cereal import log
 from selfdrive.controls.lib.latcontrol import LatControl, MIN_STEER_SPEED
 from selfdrive.controls.lib.pid import PIDController
-
+from common.params import Params, put_nonblocking
 
 class LatControlPID(LatControl):
   def __init__(self, CP, CI):
@@ -12,6 +19,8 @@ class LatControlPID(LatControl):
                              (CP.lateralTuning.pid.kiBP, CP.lateralTuning.pid.kiV),
                              k_f=CP.lateralTuning.pid.kf, pos_limit=self.steer_max, neg_limit=-self.steer_max)
     self.get_steer_feedforward = CI.get_steer_feedforward_function()
+
+    self.sm = messaging.SubMaster(['vagParam'])
 
   def reset(self):
     super().reset()
@@ -28,7 +37,23 @@ class LatControlPID(LatControl):
 
     pid_log.steeringAngleDesiredDeg = angle_steers_des
     pid_log.angleError = error
-    if CS.vEgo < MIN_STEER_SPEED or not active:
+
+   #Pon Fulltime LKA
+    isVagParamFromCerealEnabled = self.sm['vagParam'].isVagParamFromCerealEnabled
+    if isVagParamFromCerealEnabled:
+      isVagFlkaLogEnabled = self.sm['vagParam'].isVagFlkaLogEnabled
+    else :
+      params = Params()
+      try:
+        isVagFlkaLogEnabled = params.get_bool("IsVagFlkaLogEnabled")
+      except:
+        print("[BOP][latcontrol_pid.py][update()][IsVagFlkaLogEnabled] Get param exception")
+        isVagFlkaLogEnabled = False
+
+    if isVagFlkaLogEnabled:
+      print("[BOP][latcontrol_pid.py][update()][FLKA] CS.cruiseState.available=", CS.cruiseState.available)
+
+    if (CS.vEgo < MIN_STEER_SPEED or not active) and (CS.vEgo < MIN_STEER_SPEED or not CS.cruiseState.available):
       output_steer = 0.0
       pid_log.active = False
       self.pid.reset()

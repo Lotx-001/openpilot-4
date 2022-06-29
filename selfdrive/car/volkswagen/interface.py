@@ -1,4 +1,12 @@
+#
+# Copyright (c) 2020-2022 bluetulippon@gmail.com Chad_Peng(Pon).
+# All Rights Reserved.
+# Confidential and Proprietary - bluetulippon@gmail.com Chad_Peng(Pon).
+#
+
+import cereal.messaging as messaging
 from cereal import car
+from common.params import Params, put_nonblocking
 from selfdrive.car.volkswagen.values import CAR, BUTTON_STATES, CANBUS, NetworkLocation, TransmissionType, GearShifter
 from selfdrive.car import STD_CARGO_KG, scale_rot_inertia, scale_tire_stiffness, gen_empty_fingerprint, get_safety_config
 from selfdrive.car.interfaces import CarInterfaceBase
@@ -18,6 +26,8 @@ class CarInterface(CarInterfaceBase):
     else:
       self.ext_bus = CANBUS.cam
       self.cp_ext = self.cp_cam
+
+    self.sm = messaging.SubMaster(['vagParam'])
 
   @staticmethod
   def get_params(candidate, fingerprint=gen_empty_fingerprint(), car_fw=None, disable_radar=False):
@@ -194,12 +204,28 @@ class CarInterface(CarInterfaceBase):
     return ret
 
   def apply(self, c):
+    #Pon Fulltime LKA
     hud_control = c.hudControl
-    ret = self.CC.update(c, self.CS, self.frame, self.ext_bus, c.actuators,
+    ret = self.CC.update(c, c.availableFulltimeLka, self.CS, self.frame, self.ext_bus, c.actuators,
                          hud_control.visualAlert,
                          hud_control.leftLaneVisible,
                          hud_control.rightLaneVisible,
                          hud_control.leftLaneDepart,
                          hud_control.rightLaneDepart)
+
+    isVagParamFromCerealEnabled = self.sm['vagParam'].isVagParamFromCerealEnabled
+    if isVagParamFromCerealEnabled:
+      isVagFlkaLogEnabled = self.sm['vagParam'].isVagFlkaLogEnabled
+    else :
+      params = Params()
+      try:
+        isVagFlkaLogEnabled = params.get_bool("IsVagFlkaLogEnabled")
+      except:
+        print("[BOP][interface.py][apply()][IsVagFlkaLogEnabled] Get param exception")
+        isVagFlkaLogEnabled = False
+
+    if isVagFlkaLogEnabled:
+      print("[BOP][interface.py][apply()][FLKA] c.availableFulltimeLka=", c.availableFulltimeLka)
+
     self.frame += 1
     return ret

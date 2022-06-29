@@ -1,3 +1,9 @@
+#
+# Copyright (c) 2020-2022 bluetulippon@gmail.com Chad_Peng(Pon).
+# All Rights Reserved.
+# Confidential and Proprietary - bluetulippon@gmail.com Chad_Peng(Pon).
+#
+
 using Cxx = import "./include/c++.capnp";
 $Cxx.namespace("cereal");
 
@@ -1812,6 +1818,174 @@ struct EncodeData {
   unixTimestampNanos @3 :UInt64;
 }
 
+struct VagParam {
+  # ===== Setting =====
+  isVagManualSoundVolumeEnable @0 :Bool;
+  vagSoundVolume @1 :Int32;
+  isVagManualOsdBacklightEnable @2 :Bool;
+  vagOsdBacklight @3 :Int32;
+  isVagInfoBoxEnabled @4 :Bool;
+  isVagBlinkerEnabled @5 :Bool;
+  isVagBrakeLightEnabled @6 :Bool;
+  isVagLeadCarEnabled @7 :Bool;
+
+  # ===== Feature =====
+  # ----- Blindspot -----
+  isVagBlindspotEnabled @8 :Bool;
+  isVagBlindspotInfoVibratorEnabled @9 :Bool;
+  isVagBlindspotWarningSoundEnabled @10 :Bool;
+  isVagBlindspotWarningVibratorEnabled @11 :Bool;
+  isVagBlindspotVibratorWithFlka @12 :Bool;
+  # ----- FLKA -----
+  isVagFulltimeLkaEnabled @13 :Bool;
+  isVagFulltimeLkaEnableWithBlinker @14 :Bool;
+  isVagFulltimeLkaEnableWithBrake @15 :Bool;
+  # ----- Lead car going -----
+  isVagLeadCarGoingRemindEnabled @16 :Bool;
+  isVagLeadCarGoingRemindSoundEnabled @17 :Bool;
+  # ----- No lead car -----
+  isVagNoLeadCarEnabled @18 :Bool;
+  isVagNoLeadCarWarningSoundEnabled @19 :Bool;
+  # ----- Vision presafe -----
+  isVagVisionPresafeEnabled @20 :Bool;
+  isVagVisionPresafeWarningSoundEnabled @21 :Bool;
+  isVagVisionPresafeWarningInterposeEnabled @22 :Bool;
+  # ---- Speed camera -----
+  isVagSpeedCameraEnabled @23 :Bool;
+  isVagSpeedLimitSoundEnabled @24 :Bool;
+  isVagSaccEnabled @25 :Bool;
+
+  # ===== Test =====
+  isVagDebugOsdTestTextEnabled @26 :Bool;
+  isVagDebugItem1Enabled @27 :Bool;
+  isVagDebugItem2Enabled @28 :Bool;
+  isVagDebugItem3Enabled @29 :Bool;
+  isVagDebugItem4Enabled @30 :Bool;
+  isVagDebugItem5Enabled @31 :Bool;
+
+  # ===== Gerenal =====
+  isVagDevelopModeEnabled @32 :Bool;
+  isVagDevelopOnRoadUi @33 :Bool;
+  isVagRunningProcessLogEnabled @34 :Bool;
+  isVagParamFromCerealEnabled @35 :Bool;
+  isVagLeftBlinkerSoundEnabled @36 :Bool;
+  isVagRightBlinkerSoundEnabled @37 :Bool;
+
+  # ===== OSD =====
+  isVagDebugBlinkerTest @38 :Bool;
+  isVagDebugBlindspotInfoTest @39 :Bool;
+  isVagDebugBlindspotWarningTest @40 :Bool;
+  isVagDebugBrakeLightTest @41 :Bool;
+  isVagDebugLeadCarGoingRemindTest @42 :Bool;
+  isVagDebugNoLeadCarWarningTest @43 :Bool;
+  isVagDebugVisionPresafeTest @44 :Bool;
+
+  # ===== Log =====
+  isVagFlkaLogEnabled @45 :Bool;
+  isVagSaccLogEnabled @46 :Bool;
+  isVagSaccSpeedCamTrackEnabled @47 :Bool;
+  isVagSaccVehicleTrackEnabled @48 :Bool;
+}
+
+struct SpeedCamera {
+  vehicleLatitude @0 :Float32;
+  vehicleLongitude @1 :Float32;
+  vehicleSpeed @2 :Float32;
+  vehicleDirect @3 :SpeedDirect;
+  vihicleToCameraDirect @4 :SpeedDirect;
+  speedCameraDetected @5 :Bool;
+  speedCameraMapPosition @6 :SpeedCameraMapPosition;
+
+  enum SpeedDirect {
+    n @0; #northern
+    s @1; #southern
+    e @2; #eastern
+    w @3; #western
+    d @4; #double
+    ne @5; #N+E
+    nw @6; #N+W
+    se @7; #S+E
+    sw @8; #S+W
+    u @9; #unknown
+  }
+
+  struct SpeedCameraMapPosition {
+    latitude @0 :Float32;
+    longitude @1 :Float32;
+    direct @2 :SpeedDirect;
+    speedLimitation @3 :Float32;
+    roadType @4 :RoadType;
+    vehicleDistance @5 :Float32;
+    vehicleTrackAngle @6 :Float32;
+
+    enum RoadType {
+      road @0;
+      freeway @1;
+      highway @2;
+    }
+  }
+}
+
+struct SpeedCamera2 {
+  speedCameraDetected @0 :Bool;
+  vehiclePosition @1: VehiclePosition;
+  speedCameraCandidate @2: SpeedCameraCandidate;
+}
+
+struct SpeedCameraPositionListModify {
+  operation @0 :Operation;
+  speedCameraMapPosition @1 :SpeedCameraMapPosition;
+
+  enum Operation {
+    noUpdate @0;
+    addSpeedCameraPosition @1;
+    removeSpeedCameraPosition @2;
+  }
+}
+
+enum VehicleDirect {
+  n @0; #northern
+  s @1; #southern
+  e @2; #eastern
+  w @3; #western
+  d @4; #double
+  ne @5; #N+E
+  nw @6; #N+W
+  se @7; #S+E
+  sw @8; #S+W
+  u @9; #unknown
+}
+
+enum RoadType {
+  road @0;
+  freeway @1;
+  highway @2;
+}
+
+struct SpeedCameraMapPosition {
+  latitude @0 :Float32;
+  longitude @1 :Float32;
+  altitude @2 :Float32;
+  direct @3 :VehicleDirect;
+  speedLimitation @4 :Float32;
+  roadType @5 :RoadType;
+  sacc @6 :Bool;
+}
+
+struct SpeedCameraCandidate {
+  speedCameraMapPosition @0 :SpeedCameraMapPosition;
+  vehicleDistance @1 :Float32;
+  vehicleTrackAngle @2 :Float32;
+}
+
+struct VehiclePosition {
+  latitude @0 :Float32;
+  longitude @1 :Float32;
+  altitude @2 :Float32;
+  speed @3 :Float32;
+  direct @4 :VehicleDirect;
+}
+
 struct Event {
   logMonoTime @0 :UInt64;  # nanoseconds
   valid @67 :Bool = true;
@@ -1877,6 +2051,12 @@ struct Event {
     navInstruction @82 :NavInstruction;
     navRoute @83 :NavRoute;
     navThumbnail @84: Thumbnail;
+
+
+    # VAG
+    vagParam @92 :VagParam;
+    speedCamera @93 :SpeedCamera;
+    speedCamera2 @94 :SpeedCamera2;
 
     # *********** debug ***********
     testJoystick @52 :Joystick;

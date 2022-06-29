@@ -1,3 +1,9 @@
+/*
+ * Copyright (c) 2020-2022 bluetulippon@gmail.com Chad_Peng.
+ * All Rights Reserved.
+ * Confidential and Proprietary - bluetulippon@gmail.com Chad_Peng.
+ */
+
 #include "common/params.h"
 
 #include <dirent.h>
@@ -176,6 +182,62 @@ std::unordered_map<std::string, uint32_t> keys = {
     {"Offroad_TemperatureTooHigh", CLEAR_ON_MANAGER_START},
     {"Offroad_UnofficialHardware", CLEAR_ON_MANAGER_START},
     {"Offroad_UpdateFailed", CLEAR_ON_MANAGER_START},
+    //Pon Add settings parameter
+    // ===== Setting =====
+    {"IsVagManualSoundVolumeEnable", PERSISTENT},
+    {"VagSoundVolume", PERSISTENT},
+    {"IsVagManualOsdBacklightEnable", PERSISTENT},
+    {"VagOsdBacklight", PERSISTENT},
+    {"IsVagInfoBoxEnabled", PERSISTENT},
+    {"IsVagBlinkerEnabled", PERSISTENT},
+    {"IsVagBrakeLightEnabled", PERSISTENT},
+    {"IsVagLeadCarEnabled", PERSISTENT},
+    // ===== Feature =====
+    {"IsVagBlindspotEnabled", PERSISTENT},
+    {"IsVagBlindspotInfoVibratorEnabled", PERSISTENT},
+    {"IsVagBlindspotWarningSoundEnabled", PERSISTENT},
+    {"IsVagBlindspotWarningVibratorEnabled", PERSISTENT},
+    {"IsVagBlindspotVibratorWithFlka", PERSISTENT},
+    {"IsVagFulltimeLkaEnabled", PERSISTENT},
+    {"IsVagFulltimeLkaEnableWithBlinker", PERSISTENT},
+    {"IsVagFulltimeLkaEnableWithBrake", PERSISTENT},
+    {"IsVagLeadCarGoingRemindEnabled", PERSISTENT},
+    {"IsVagLeadCarGoingRemindSoundEnabled", PERSISTENT},
+    {"IsVagNoLeadCarEnabled", PERSISTENT},
+    {"IsVagNoLeadCarWarningSoundEnabled", PERSISTENT},
+    {"IsVagVisionPresafeEnabled", PERSISTENT},
+    {"IsVagVisionPresafeWarningSoundEnabled", PERSISTENT},
+    {"IsVagVisionPresafeWarningInterposeEnabled", PERSISTENT},
+    {"IsVagSpeedCameraEnabled", PERSISTENT},
+    {"IsVagSpeedLimitSoundEnabled", PERSISTENT},
+    {"IsVagSaccEnabled", PERSISTENT},
+    // ===== Test =====
+    {"IsVagDebugOsdTestTextEnabled", PERSISTENT},
+    {"IsVagDebugItem1Enabled", PERSISTENT},
+    {"IsVagDebugItem2Enabled", PERSISTENT},
+    {"IsVagDebugItem3Enabled", PERSISTENT},
+    {"IsVagDebugItem4Enabled", PERSISTENT},
+    {"IsVagDebugItem5Enabled", PERSISTENT},
+    // ===== Gerenal =====
+    {"IsVagDevelopModeEnabled", PERSISTENT},
+    {"IsVagDevelopOnRoadUi", PERSISTENT},
+    {"IsVagRunningProcessLogEnabled", PERSISTENT},
+    {"IsVagParamFromCerealEnabled", PERSISTENT},
+    {"IsVagLeftBlinkerSoundEnabled", PERSISTENT},
+    {"IsVagRightBlinkerSoundEnabled", PERSISTENT},
+    // ===== OSD =====
+    {"IsVagDebugBlinkerTest", PERSISTENT},
+    {"IsVagDebugBlindspotInfoTest", PERSISTENT},
+    {"IsVagDebugBlindspotWarningTest", PERSISTENT},
+    {"IsVagDebugBrakeLightTest", PERSISTENT},
+    {"IsVagDebugLeadCarGoingRemindTest", PERSISTENT},
+    {"IsVagDebugNoLeadCarWarningTest", PERSISTENT},
+    {"IsVagDebugVisionPresafeTest", PERSISTENT},
+    // ===== Log =====
+    {"IsVagFlkaLogEnabled", PERSISTENT},
+    {"IsVagSaccLogEnabled", PERSISTENT},
+    {"IsVagSaccSpeedCamTrackEnabled", PERSISTENT},
+    {"IsVagSaccVehicleTrackEnabled", PERSISTENT},
 };
 
 } // namespace

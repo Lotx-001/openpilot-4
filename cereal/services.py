@@ -1,4 +1,10 @@
 #!/usr/bin/env python3
+#
+# Copyright (c) 2020-2022 bluetulippon@gmail.com Chad_Peng(Pon).
+# All Rights Reserved.
+# Confidential and Proprietary - bluetulippon@gmail.com Chad_Peng(Pon).
+#
+
 import os
 from typing import Optional
 
@@ -70,6 +76,9 @@ services = {
   "navRoute": (True, 0.),
   "navThumbnail": (True, 0.),
   "qRoadEncodeIdx": (False, 20.),
+  "vagParam": (False, 2.),
+  "speedCamera": (False, 1.),
+  "speedCamera2": (False, 2.),
 
   # debug
   "testJoystick": (True, 0.),

@@ -1,3 +1,9 @@
+#
+# Copyright (c) 2020-2022 bluetulippon@gmail.com Chad_Peng(Pon).
+# All Rights Reserved.
+# Confidential and Proprietary - bluetulippon@gmail.com Chad_Peng(Pon).
+#
+
 using Cxx = import "./include/c++.capnp";
 $Cxx.namespace("cereal");
 
@@ -164,6 +170,7 @@ struct CarState {
   brakePressed @6 :Bool;  # this is user pedal only
   parkingBrake @39 :Bool;
   brakeHoldActive @38 :Bool;
+  brakeLights @19 :Bool;
 
   # steering wheel
   steeringAngleDeg @7 :Float32;
@@ -205,6 +212,38 @@ struct CarState {
   # blindspot sensors
   leftBlindspot @33 :Bool; # Is there something blocking the left lane change
   rightBlindspot @34 :Bool; # Is there something blocking the right lane change
+  leftBlindspotWarning @44 :Bool; # Is there something blocking the right lane change
+  rightBlindspotWarning @45 :Bool; # Is there something blocking the right lane change
+  vagAcc @46 :VagAcc;
+  vagTsr @47 :VagTsr; #Traffic sign recognition
+
+  struct VagAcc {
+    accWunschgeschw @0 :Float32;
+    accAbstandsindex @1 :Int32;
+    accDistanceToStop @2 :Bool;
+    accHoldRequest @3 :Bool;
+    accBoostRequest @4 :Bool;
+    accFreewheelRequest @5 :Bool;
+    accHoldRelease @6 :Bool;
+  }
+
+  struct VagTsr {
+    vzeAnzeigemodus @0 :Int32;
+    vzeHinweistext @1 :Int32;
+    vzeStatuszaehler1 @2 :Int32;
+    vzeStatuszaehler2 @3 :Int32;
+    vzeStatuszaehler3 @4 :Int32;
+    vzeVerkehrszeichen1 @5 :Int32;
+    vzeVerkehrszeichen2 @6 :Int32;
+    vzeVerkehrszeichen3 @7 :Int32;
+    vzeWarnungVerkehrszeichen1 @8 :Bool;
+    vzeWarnungVerkehrszeichen2 @9 :Bool;
+    vzeWarnungVerkehrszeichen3 @10 :Bool;
+    vzeZusatzschild1 @11 :Int32;
+    vzeZusatzschild2 @12 :Int32;
+    vzeZusatzschild3 @13 :Int32;
+    vzeHinweistext02 @14 :Int32;
+  }
 
   fuelGauge @41 :Float32; # battery or fuel tank level from 0.0 to 1.0
   charging @43 :Bool;
@@ -261,7 +300,6 @@ struct CarState {
   }
 
   errorsDEPRECATED @0 :List(CarEvent.EventName);
-  brakeLightsDEPRECATED @19 :Bool;
 }
 
 # ******* radar state @ 20hz *******
@@ -305,6 +343,7 @@ struct CarControl {
   enabled @0 :Bool;
   latActive @11: Bool;
   longActive @12: Bool;
+  availableFulltimeLka @15 :Bool;
 
   # Actuator commands as computed by controlsd
   actuators @6 :Actuators;
@@ -387,6 +426,26 @@ struct CarControl {
       prompt @6;
       promptRepeat @7;
       promptDistracted @8;
+
+      leftBlindspot @9;
+      rightBlindspot @10;
+      leadCarGoing @11;
+      noLeadCarWarning @12;
+      leftCutIn @13;
+      rightCutIn @14;
+      speedLimit30Km @15;
+      speedLimit40Km @16;
+      speedLimit50Km @17;
+      speedLimit60Km @18;
+      speedLimit70Km @19;
+      speedLimit80Km @20;
+      speedLimit90Km @21;
+      speedLimit100Km @22;
+      speedLimit110Km @23;
+      leftBlinker @24;
+      rightBlinker @25;
+      leadCarHeavyBrake @26;
+      voiceTest @27;
     }
   }
 
