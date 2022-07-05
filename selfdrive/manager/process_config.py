@@ -1,3 +1,9 @@
+#
+# Copyright (c) 2020-2022 bluetulippon@gmail.com Chad_Peng(Pon).
+# All Rights Reserved.
+# Confidential and Proprietary - bluetulippon@gmail.com Chad_Peng(Pon).
+#
+
 import os
 
 from selfdrive.hardware import EON, TICI, PC
@@ -20,6 +26,7 @@ procs = [
   NativeProcess("ubloxd", "selfdrive/locationd", ["./ubloxd"], enabled=(not PC or WEBCAM)),
   NativeProcess("ui", "selfdrive/ui", ["./ui"], persistent=True, watchdog_max_dt=(5 if TICI else None)),
   NativeProcess("soundd", "selfdrive/ui/soundd", ["./soundd"], persistent=True),
+  NativeProcess("speedcamera_c++", "selfdrive/vag/speedcamera_c++", ["./speedcamerad"], enabled=(not PC), persistent=True),
   NativeProcess("locationd", "selfdrive/locationd", ["./locationd"]),
   NativeProcess("boardd", "selfdrive/boardd", ["./boardd"], enabled=False),
   PythonProcess("calibrationd", "selfdrive.locationd.calibrationd"),
@@ -34,8 +41,10 @@ procs = [
   PythonProcess("thermald", "selfdrive.thermald.thermald", persistent=True),
   PythonProcess("timezoned", "selfdrive.timezoned", enabled=TICI, persistent=True),
   PythonProcess("tombstoned", "selfdrive.tombstoned", enabled=not PC, persistent=True),
-  PythonProcess("updated", "selfdrive.updated", enabled=not PC, persistent=True),
-  PythonProcess("uploader", "selfdrive.loggerd.uploader", persistent=True),
+  #Pon Disable updated process
+  #PythonProcess("updated", "selfdrive.updated", enabled=not PC, persistent=True),
+  #Pon Disable uploader process
+  #PythonProcess("uploader", "selfdrive.loggerd.uploader", persistent=True),
   PythonProcess("statsd", "selfdrive.statsd", persistent=True),
 
   # EON only
