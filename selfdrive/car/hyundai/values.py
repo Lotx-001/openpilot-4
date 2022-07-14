@@ -140,6 +140,8 @@ CAR_INFO: Dict[str, Optional[Union[HyundaiCarInfo, List[HyundaiCarInfo]]]] = {
   ],
   CAR.KIA_STINGER: HyundaiCarInfo("Kia Stinger 2018", video_link="https://www.youtube.com/watch?v=MJ94qoofYw0", harness=Harness.hyundai_c),
   CAR.KIA_CEED: HyundaiCarInfo("Kia Ceed 2019", harness=Harness.hyundai_e),
+  CAR.KIA_CADENZA: HyundaiCarInfo ("kia k7 2016-2019", harness=Harness.hyundai_c),
+  CAR.KIA_CADENZA_HEV: HyundaiCarInfo ("kia k7 HEV 2016-2019", harness=Harness.hyundai_c),
 
   # Genesis
   CAR.GENESIS_G70: HyundaiCarInfo("Genesis G70 2018", "All", harness=Harness.hyundai_f),
